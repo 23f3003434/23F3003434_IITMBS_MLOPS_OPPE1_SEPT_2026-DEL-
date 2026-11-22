@@ -11,7 +11,7 @@ Copy the public key to github ssh
 ssh-keygen
 cd .ssh
 ```
-Replace contents of id_ed25519 and id_25519.pub with your working setups
+Replace contents of id_ed25519 and id_25519.pub with your working keys from any device
 
 ## Test SSH 
 ```bash
