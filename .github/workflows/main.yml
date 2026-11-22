@@ -1,4 +1,3 @@
-
 name: Sample workflow
 
 on:
@@ -38,8 +37,8 @@ jobs:
         id: auth
         uses: google-github-actions/auth@v2
         with:
-          workload_identity_provider: 'projects/166896050778/locations/global/workloadIdentityPools/github-workflow-mlops/providers/github'
-          service_account: 'github-workflow@mlops-511105.iam.gserviceaccount.com'
+          workload_identity_provider: 'projects/166896050778/locations/global/workloadIdentityPools/github-pool/providers/github-provider'
+          service_account: 'oppe-696@mlops-511105.iam.gserviceaccount.com'
           project_id: 'mlops-511105'
 
       - name: Setup gcloud CLI
