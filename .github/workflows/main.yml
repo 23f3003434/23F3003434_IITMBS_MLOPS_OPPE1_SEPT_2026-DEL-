@@ -1,9 +1,7 @@
-
-name: Sample Workflow
+name: Sample workflow
 
 on:
   workflow_dispatch:
-  push:
   pull_request:
     branches:
       - main
@@ -18,28 +16,17 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Checkout repository
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 2. Setup Python
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
 
-      # 3. Setup CML
       - name: Setup CML
         uses: iterative/setup-cml@v2
 
-      # 4. Install requirements and DVC GCS plugin
-      - name: Install requirements
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-          pip install dvc-gs
-
-      # 5. Authenticate to Google Cloud
       - name: Authenticate to Google Cloud
         id: auth
         uses: google-github-actions/auth@v2
@@ -48,33 +35,18 @@ jobs:
           service_account: 'github-workflow@mlops-511105.iam.gserviceaccount.com'
           project_id: 'mlops-511105'
 
-      # 6. Setup gcloud CLI
       - name: Setup gcloud CLI
         uses: google-github-actions/setup-gcloud@v2
-        with:
-          project_id: mlops-511105
 
-      # 7. Verify Google Cloud authentication
-      - name: Verify GCP authentication
+      - name: Install requirements
         run: |
-          gcloud auth list
-          gcloud config get-value project
+          pip install -r requirements.txt
 
-      # 8. Debug DVC remote and GCS access
-      - name: Debug DVC remote
-        run: |
-          dvc remote list
-          dvc config core.remote
-          dvc config remote.myremote.url
-          gcloud storage ls gs://prash-mlops-common-bucket/mock/files/md5/ee/
-
-      # 9. Pull data and execute pipeline
       - name: Execute DVC pipeline
         run: |
-          dvc pull -v --remote myremote
+          dvc pull -v
           bash run.sh
 
-      # 10. Generate and publish CML report
       - name: Generate and publish CML report
         env:
           REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
