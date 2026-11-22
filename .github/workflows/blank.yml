@@ -1,0 +1,59 @@
+name: Sample Workflow
+
+on:
+  workflow_dispatch:
+  push:
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: write
+  pull-requests: write
+  id-token: write
+
+jobs:
+  check_model:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Setup CML
+        uses: iterative/setup-cml@v2
+
+      - name: Authenticate to Google Cloud
+        id: auth
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: 'projects/166896050778/locations/global/workloadIdentityPools/github-workflow-mlops/providers/github'
+          service_account: 'github-workflow@mlops-511105.iam.gserviceaccount.com'
+          project_id: 'mlops-511105'
+
+      - name: Setup gcloud CLI
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Install requirement
+        run: |
+          pip install -r requirements.txt
+
+      - name: Execute DVC pipeline
+        run: |
+          dvc pull -v
+          bash run.sh
+
+      - name: Generate and publish CML report
+        env:
+          REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "## Model Check Report" > report.md
+          echo '```' >> report.md
+          cat run.log >> report.md
+          echo '```' >> report.md
+          cml send-comment report.md
